@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  image-toolkit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: local-image-toolkit
+    restart: unless-stopped
+    ports:
+      # Bind to localhost by default for security
+      - "127.0.0.1:8000:8000"
+    environment:
+      - APP_NAME=Local Image Toolkit
+      - DEBUG=false
+      - MAX_UPLOAD_SIZE_MB=50
+      - MAX_IMAGE_PIXELS=100000000
+      - MAX_BATCH_FILES=50
+      - TEMP_FILE_LIFETIME_SECONDS=3600
+      - U2NET_HOME=/app/models
+    volumes:
+      # Persistent storage for downloaded AI ONNX models
+      - model_data:/app/models
+      # Persistent outputs (optional, files are retained until cleaned up)
+      - output_data:/app/output
+      - temp_data:/app/temp
+      - upload_data:/app/uploads
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4096M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  model_data:
+    driver: local
+  output_data:
+    driver: local
+  temp_data:
+    driver: local
+  upload_data:
+    driver: local

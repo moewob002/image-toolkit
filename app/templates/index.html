@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ app_name }} — Modern Offline Image Toolkit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="icon" href="/static/assets/favicon.ico" type="image/x-icon">
+  <script>
+    /* Instant theme hydration to prevent flash of wrong theme */
+    (function() {
+      try {
+        const saved = localStorage.getItem('image-toolkit-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- Background Ambient Glow -->
+  <div class="ambient-glow ambient-glow-1"></div>
+  <div class="ambient-glow ambient-glow-2"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon-wrapper">
+          <div class="brand-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3" ry="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="brand-badge-offline">OFFLINE</div>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <h1 class="brand-title">Local Image Toolkit</h1>
+            <span class="version-tag">v{{ version }}</span>
+          </div>
+          <p class="brand-subtitle">Private • 100% On-Device Processing • Zero Cloud Leakage</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="status-pill">
+          <span class="pulse-dot"></span>
+          <span class="status-label">Local Engine Active</span>
+        </div>
+        
+        <!-- Light / Dark Mode Toggle Button -->
+        <button type="button" id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle color scheme" title="Toggle Light / Dark mode">
+          <div class="theme-icon-container">
+            <!-- Sun icon for light mode -->
+            <svg class="theme-icon sun-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <!-- Moon icon for dark mode -->
+            <svg class="theme-icon moon-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </div>
+          <span class="theme-toggle-text">Theme</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Modern Navigation Segmented Controls -->
+    <nav class="tools-nav" role="tablist">
+      <button class="tab-btn active" data-tab="converter" role="tab" aria-selected="true">
+        <div class="tab-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        </div>
+        <span class="tab-title">Converter</span>
+        <span class="tab-tag">8 Formats</span>
+      </button>
+
+      <button class="tab-btn" data-tab="compressor" role="tab" aria-selected="false">
+        <div class="tab-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </div>
+        <span class="tab-title">Compressor</span>
+        <span class="tab-tag">Smart Presets</span>
+      </button>
+
+      <button class="tab-btn" data-tab="bgremover" role="tab" aria-selected="false">
+        <div class="tab-icon-wrap ai-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        </div>
+        <span class="tab-title">AI Background Remover</span>
+        <span class="tab-tag ai-tag">ONNX u2net</span>
+      </button>
+    </nav>
+
+    <!-- Main Workspace Grid -->
+    <main class="workspace-grid">
+      <!-- Left: Upload & File Queue -->
+      <section class="card workspace-card upload-section">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2 class="card-title">Image Files</h2>
+            <p class="card-subtitle">Select or drop multiple files for batch processing</p>
+          </div>
+          <span class="badge-count" id="queue-count">0 queued</span>
+        </div>
+
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="Upload images drop zone">
+          <input type="file" id="file-input" multiple accept="image/*,.avif,.webp,.ico,.tiff,.bmp" class="file-input-hidden">
+          <div class="drop-zone-content">
+            <div class="upload-icon-container">
+              <svg class="upload-icon" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="drop-zone-texts">
+              <p class="drop-zone-main">Drag & drop images here, or <span class="browse-link">browse files</span></p>
+              <p class="drop-zone-meta">JPEG, PNG, WebP, AVIF, GIF, BMP, TIFF, ICO • Up to {{ max_upload_mb }}MB per file</p>
+            </div>
+            <div class="format-pills">
+              <span class="format-pill">WebP</span>
+              <span class="format-pill">AVIF</span>
+              <span class="format-pill">PNG</span>
+              <span class="format-pill">JPEG</span>
+              <span class="format-pill">GIF</span>
+              <span class="format-pill">ICO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Queue List -->
+        <div class="queue-list-container" id="queue-container" style="display: none;">
+          <div class="queue-actions-bar">
+            <div class="queue-heading">
+              <span class="queue-title">Upload Queue</span>
+              <span class="queue-total-size" id="queue-total-size"></span>
+            </div>
+            <button type="button" class="btn-ghost-danger" id="clear-queue-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Clear all
+            </button>
+          </div>
+          <div class="queue-items" id="queue-items"></div>
+        </div>
+      </section>
+
+      <!-- Right: Settings Panel -->
+      <section class="card workspace-card settings-section">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2 class="card-title" id="settings-title">Tool Settings</h2>
+            <p class="card-subtitle" id="settings-subtitle">Configure output formats and parameters</p>
+          </div>
+        </div>
+
+        <!-- 1. Converter Settings Form -->
+        <form id="converter-form" class="tool-settings-form active" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label" for="conv-format">
+              <span>Target Format</span>
+              <span class="form-hint">Select output codec</span>
+            </label>
+            <div class="select-wrapper">
+              <select id="conv-format" class="form-select">
+                <option value="WEBP" selected>WebP (.webp) — Modern, Highly Efficient & Transparent</option>
+                <option value="PNG">PNG (.png) — Lossless, Transparent</option>
+                <option value="JPEG">JPEG (.jpg) — Universal Photo Standard</option>
+                <option value="AVIF">AVIF (.avif) — Next-Gen High Efficiency</option>
+                <option value="GIF">GIF (.gif) — Animated & Classic</option>
+                <option value="ICO">ICO (.ico) — Windows & Web Favicon</option>
+                <option value="BMP">BMP (.bmp) — Bitmap Uncompressed</option>
+                <option value="TIFF">TIFF (.tiff) — High-Depth Graphics</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-with-value">
+              <label class="form-label" for="conv-quality">Quality Level</label>
+              <span class="range-val-badge" id="conv-quality-val">90%</span>
+            </div>
+            <div class="range-slider-wrapper">
+              <input type="range" id="conv-quality" min="10" max="100" value="90" class="form-range">
+            </div>
+            <span class="field-note">Higher quality produces sharper images with larger file sizes.</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col">
+              <label class="form-label" for="conv-width">Custom Width</label>
+              <div class="input-with-unit">
+                <input type="number" id="conv-width" placeholder="Auto" min="1" max="16384" class="form-input">
+                <span class="input-unit">px</span>
+              </div>
+            </div>
+            <div class="form-group col">
+              <label class="form-label" for="conv-height">Custom Height</label>
+              <div class="input-with-unit">
+                <input type="number" id="conv-height" placeholder="Auto" min="1" max="16384" class="form-input">
+                <span class="input-unit">px</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group switch-group">
+            <label class="switch-label" for="conv-aspect">
+              <div class="switch-text">
+                <span class="switch-title">Preserve Aspect Ratio</span>
+                <span class="switch-desc">Prevent distortion when resizing dimensions</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="conv-aspect" checked class="switch-input">
+                <span class="switch-slider"></span>
+              </div>
+            </label>
+          </div>
+
+          <div class="form-group matte-group" id="conv-matte-group">
+            <label class="form-label" for="conv-matte">
+              <span>Background Matte Color</span>
+              <span class="form-hint">Used when converting transparency to JPEG / BMP</span>
+            </label>
+            <div class="color-picker-card">
+              <input type="color" id="conv-matte" value="#FFFFFF" class="form-color-circle">
+              <div class="color-picker-info">
+                <span class="color-hex-code" id="conv-matte-hex">#FFFFFF</span>
+                <span class="color-subtext">Default: White background</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <!-- 2. Compressor Settings Form -->
+        <form id="compressor-form" class="tool-settings-form" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label">Compression Preset</label>
+            <div class="preset-grid">
+              <label class="preset-card checked">
+                <input type="radio" name="preset" value="balanced" checked>
+                <div class="preset-indicator"></div>
+                <div class="preset-content">
+                  <div class="preset-header-row">
+                    <span class="preset-title">Balanced</span>
+                    <span class="preset-badge-rec">Recommended</span>
+                  </div>
+                  <span class="preset-desc">Optimal balance between size & clarity (Q75)</span>
+                </div>
+              </label>
+
+              <label class="preset-card">
+                <input type="radio" name="preset" value="maximum">
+                <div class="preset-indicator"></div>
+                <div class="preset-content">
+                  <div class="preset-header-row">
+                    <span class="preset-title">Maximum</span>
+                  </div>
+                  <span class="preset-desc">Smallest possible size for web & email (Q40)</span>
+                </div>
+              </label>
+
+              <label class="preset-card">
+                <input type="radio" name="preset" value="high_quality">
+                <div class="preset-indicator"></div>
+                <div class="preset-content">
+                  <div class="preset-header-row">
+                    <span class="preset-title">High Quality</span>
+                  </div>
+                  <span class="preset-desc">Near-lossless clarity for high DPI displays (Q90)</span>
+                </div>
+              </label>
+
+              <label class="preset-card">
+                <input type="radio" name="preset" value="custom">
+                <div class="preset-indicator"></div>
+                <div class="preset-content">
+                  <div class="preset-header-row">
+                    <span class="preset-title">Custom</span>
+                  </div>
+                  <span class="preset-desc">Fine-tune manual compression sliders</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" id="comp-custom-quality-group" style="display: none;">
+            <div class="label-with-value">
+              <label class="form-label" for="comp-quality">Custom Quality Level</label>
+              <span class="range-val-badge" id="comp-quality-val">75%</span>
+            </div>
+            <div class="range-slider-wrapper">
+              <input type="range" id="comp-quality" min="10" max="100" value="75" class="form-range">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="comp-format">
+              <span>Output Format</span>
+              <span class="form-hint">Keep original or transcode</span>
+            </label>
+            <div class="select-wrapper">
+              <select id="comp-format" class="form-select">
+                <option value="">Keep Original Format</option>
+                <option value="WEBP">Convert to WebP (Recommended)</option>
+                <option value="AVIF">Convert to AVIF (Next-Gen)</option>
+                <option value="JPEG">Convert to JPEG</option>
+                <option value="PNG">Convert to PNG</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="comp-resize-mode">Resize Strategy</label>
+            <div class="select-wrapper">
+              <select id="comp-resize-mode" class="form-select">
+                <option value="none">No Resizing (Preserve Original Dimensions)</option>
+                <option value="percentage">Scale by Percentage</option>
+                <option value="dimensions">Scale to Max Dimensions</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" id="comp-percentage-group" style="display: none;">
+            <div class="label-with-value">
+              <label class="form-label" for="comp-percent">Scale Percentage</label>
+              <span class="range-val-badge" id="comp-percent-val">75%</span>
+            </div>
+            <div class="range-slider-wrapper">
+              <input type="range" id="comp-percent" min="10" max="90" step="5" value="75" class="form-range">
+            </div>
+          </div>
+
+          <div class="form-row" id="comp-dimensions-group" style="display: none;">
+            <div class="form-group col">
+              <label class="form-label" for="comp-width">Max Width</label>
+              <div class="input-with-unit">
+                <input type="number" id="comp-width" placeholder="1920" class="form-input">
+                <span class="input-unit">px</span>
+              </div>
+            </div>
+            <div class="form-group col">
+              <label class="form-label" for="comp-height">Max Height</label>
+              <div class="input-with-unit">
+                <input type="number" id="comp-height" placeholder="1080" class="form-input">
+                <span class="input-unit">px</span>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <!-- 3. AI Background Remover Settings Form -->
+        <form id="bgremover-form" class="tool-settings-form" onsubmit="return false;">
+          <div class="ai-engine-banner">
+            <div class="ai-engine-header">
+              <div class="ai-sparkle-icon">✨</div>
+              <div class="ai-engine-details">
+                <div class="ai-engine-title-row">
+                  <span class="ai-engine-title">Local ONNX Neural Network</span>
+                  <span class="ai-model-tag">u2net</span>
+                </div>
+                <p class="ai-engine-desc">High-accuracy salience segmentation running entirely offline in memory.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Background Replacement Style</label>
+            <div class="bg-choice-grid">
+              <label class="bg-choice-card checked">
+                <input type="radio" name="bg_type" value="transparent" checked>
+                <div class="bg-choice-preview-box checker-pattern"></div>
+                <div class="bg-choice-info">
+                  <span class="bg-choice-title">Transparent</span>
+                  <span class="bg-choice-sub">Export PNG</span>
+                </div>
+              </label>
+
+              <label class="bg-choice-card">
+                <input type="radio" name="bg_type" value="color">
+                <div class="bg-choice-preview-box solid-color-preview" id="bg-color-preview"></div>
+                <div class="bg-choice-info">
+                  <span class="bg-choice-title">Solid Color</span>
+                  <span class="bg-choice-sub">Studio backdrop</span>
+                </div>
+              </label>
+
+              <label class="bg-choice-card">
+                <input type="radio" name="bg_type" value="image">
+                <div class="bg-choice-preview-box custom-image-preview">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+                <div class="bg-choice-info">
+                  <span class="bg-choice-title">Custom Image</span>
+                  <span class="bg-choice-sub">Custom scenery</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" id="bg-color-picker-group" style="display: none;">
+            <label class="form-label" for="bg-color-picker">Choose Background Color</label>
+            <div class="color-picker-card">
+              <input type="color" id="bg-color-picker" value="#3B82F6" class="form-color-circle">
+              <div class="color-picker-info">
+                <span class="color-hex-code" id="bg-color-hex">#3B82F6</span>
+                <span class="color-subtext">Click circle to pick any hex or RGB hue</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" id="bg-image-upload-group" style="display: none;">
+            <label class="form-label" for="bg-custom-image-input">Upload Custom Backdrop</label>
+            <div class="custom-bg-input-wrapper">
+              <input type="file" id="bg-custom-image-input" accept="image/*" class="form-input">
+            </div>
+            <span class="field-note">Auto-fitted and composited behind the foreground cutout.</span>
+          </div>
+        </form>
+
+        <!-- Action Button -->
+        <div class="process-action-wrapper">
+          <button type="button" class="btn-primary" id="process-btn" disabled>
+            <div class="btn-shine"></div>
+            <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span id="process-btn-text">Process Images</span>
+          </button>
+        </div>
+
+        <!-- Progress Bar Indicator -->
+        <div class="progress-container" id="progress-container" style="display: none;">
+          <div class="progress-header">
+            <div class="progress-status-wrapper">
+              <span class="progress-spinner"></span>
+              <span class="progress-status" id="progress-status">Preparing images...</span>
+            </div>
+            <span class="progress-percent" id="progress-percent">0%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Results Section -->
+    <section class="results-section" id="results-section" style="display: none;">
+      <div class="results-header">
+        <div class="results-title-group">
+          <div class="results-heading-row">
+            <h2 class="results-title">Processed Results</h2>
+            <span class="results-badge-success">Completed</span>
+          </div>
+          <p class="results-summary" id="results-summary"></p>
+        </div>
+        <div class="results-actions">
+          <button type="button" class="btn-secondary" id="download-zip-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download All as ZIP</span>
+          </button>
+          <button type="button" class="btn-outline" id="new-batch-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <span>New Batch</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Gallery Cards -->
+      <div class="results-grid" id="results-grid"></div>
+    </section>
+
+    <!-- Fullscreen Modal Preview Lightbox -->
+    <div class="modal-overlay" id="preview-modal" style="display: none;">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3 class="modal-title" id="modal-title">Image Inspection</h3>
+            <span class="modal-meta" id="modal-meta"></span>
+          </div>
+          <div class="modal-actions">
+            <a href="#" download class="btn-modal-download" id="modal-download-link">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Download</span>
+            </a>
+            <button type="button" class="modal-close-btn" id="modal-close-btn" aria-label="Close preview">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="modal-body-preview" id="modal-preview-wrapper">
+          <img src="" id="modal-img" alt="Preview" class="modal-preview-img">
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
